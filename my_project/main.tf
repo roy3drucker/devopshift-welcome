@@ -2,6 +2,11 @@ provider "azurerm" {
   features {}
 }
 
+resource "time_sleep" "wait_for_ip" {
+  create_duration = "30s"
+}
+
+
 resource "azurerm_resource_group" "rg-roy" {
   name     = "roy-resources"
   location = var.location
@@ -45,3 +50,25 @@ resource "azurerm_network_interface" "nic-roy" {
 }
 
 
+
+resource "null_resource" "validate_ip" {
+  provisioner "local-exec" {
+    command = <<EOT
+   if [ -z "${azurerm_public_ip.pip-roy.ip_address}" ]; then
+     echo "ERROR: Public IP address was not assigned." >&2
+     exit 1
+   fi
+ EOT
+  }
+  depends_on = [time_sleep.wait_for_ip]
+}
+
+
+
+
+
+
+module "virtual-machine_example_basic" {
+  source  = "Azure/virtual-machine/azurerm//examples/basic"
+  version = "2.0.0"
+}
