@@ -1,35 +1,34 @@
-# Null Resource for Apache Installation
 resource "null_resource" "provision_apache" {
-  depends_on = [aws_instance.vm]
-
-  # Trigger to force rerun whenever timestamp changes
-  # This will force terraform to rerun the provisioner and update the welcome.html file if changed
+  depends_on = [aws_instance.vm1]
   triggers = {
     always_run = timestamp()
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sudo dnf update",
+      "sudo dnf update -y",
       "sudo dnf install -y httpd",
       "echo '<h1>Welcome to the Web Server!</h1>' | sudo tee /var/www/html/welcome.html",
-      "sudo systemctl start httpd",
-      "sudo systemctl enable httpd"
+      "sudo systemctl enable httpd",
+      "sudo systemctl start httpd"
     ]
 
     connection {
-      type     = "ssh"
-      user     = var.admin_username
-      password = var.admin_password
-      host     = aws_instance.vm.public_ip
-      timeout  = "1m"
+      type        = "ssh"
+      host        = aws_instance.vm1.public_ip
+      user        = var.admin_username
+      password    = var.admin_password
+      port        = 22
+      timeout     = "2m"
+      # אפשר גם להשתמש ב-private_key במקום password
+      # private_key = file("~/.ssh/id_rsa")
     }
   }
 }
 
 
-# Updated Output for Server Information to use data source
+
 output "server_info" {
-  value       = "Please browse: http://${aws_instance.vm.public_ip}/welcome.html"
-  description = "Instructions to access the server, note that port 80 is currently blocked."
+  value       = "Please browse: http://${aws_instance.vm1.public_ip}/welcome.html"
+  description = "Instructions to access the Apache web server."
 }

@@ -8,11 +8,11 @@ resource "null_resource" "validate_ip" {
      retries=4
      interval=30
      for i in $(seq 1 $retries); do
-       if [ -z "${aws_instance.vm.public_ip}" ]; then
+       if [ -z "${aws_instance.vm1.public_ip}" ]; then
          echo "Attempt $i: Public IP address not assigned yet, retrying in $interval seconds..."
          sleep $interval
        else
-         echo "Public IP address assigned: ${aws_instance.vm.public_ip}"
+         echo "Public IP address assigned: ${aws_instance.vm1.public_ip}"
          exit 0
        fi
      done
