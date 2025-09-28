@@ -79,7 +79,7 @@ pipeline {
                             sh 'cat flask_app.log'
                             error "Flask application is not running!"
                         } else {
-                            echo "Flasks application is running successfully."
+                            echo "Flask application is running successfully."
                         }
                     }
                 }
